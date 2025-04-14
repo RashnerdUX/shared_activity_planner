@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, PasswordResetConfirmSerializer, PasswordResetRequestSerializer
 
 #This variable stores the current auth model user
 User = get_user_model()
@@ -125,20 +125,20 @@ class LogoutView(APIView):
             return response.Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 #This is the view for resetting password
-class ResetPassword(APIView):
-    permission_classes = [permissions.AllowAny]
+class PasswordResetRequestView(APIView):
+    serializer_class = PasswordResetRequestSerializer
 
     def post(self, request):
-        email = request.data.get('email')
-        new_password = request.data.get('password')
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response({"message": "Password reset email sent successfully."}, status=status.HTTP_200_OK)
 
-        if email:
-            try:
-                user = User.objects.get(email=email)
-                user.set_password(new_password)
-                user.save()
-                return response.Response(data={"message":"Password has been reset"}, status=status.HTTP_200_OK)
-            except User.DoesNotExist:
-                return response.Response(data={"messsage":"User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return response.Response(data={"messsage":"Email not provided"}, status=status.HTTP_400_BAD_REQUEST)
+class PasswordResetConfirmView(APIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)

@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -153,3 +157,13 @@ SIMPLE_JWT = {
 
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+DEFAULT_FROM_EMAIL = "akhigbek6@gmail.com"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'akhigbek6@gmail.com'
+EMAIL_HOST_PASSWORD= os.getenv('EMAIL_HOST_PASSWORD')
+
+
+PASSWORD_RESET_CONFIRM_URL = 'https://yourfrontenddomain.com/reset-password'
