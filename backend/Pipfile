@@ -10,6 +10,7 @@ environs = "*"
 psycopg2 = "*"
 pillow = "*"
 djangorestframework-simplejwt = "*"
+django-oauth-toolkit = "*"
 
 [dev-packages]
 
