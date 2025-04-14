@@ -124,4 +124,21 @@ class LogoutView(APIView):
         except Exception as e:
             return response.Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-#This is the custom Token View for anyone that plans to use it
+#This is the view for resetting password
+class ResetPassword(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        new_password = request.data.get('password')
+
+        if email:
+            try:
+                user = User.objects.get(email=email)
+                user.set_password(new_password)
+                user.save()
+                return response.Response(data={"message":"Password has been reset"}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return response.Response(data={"messsage":"User does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return response.Response(data={"messsage":"Email not provided"}, status=status.HTTP_400_BAD_REQUEST)

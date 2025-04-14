@@ -13,4 +13,5 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name="Login User"),
     path('login-username-only/', views.LoginWithUsernameView.as_view(), name="Default backend login"),
     path('logout/', views.LogoutView.as_view(), name="Logout User"),
+    path('password-reset/', views.ResetPassword.as_view(), name="Reset Password"),
 ]
