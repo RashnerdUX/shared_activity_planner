@@ -58,7 +58,7 @@ class ProfileSerializer(serializers.Serializer):
         return super().validate(attrs)
     
 class PasswordResetRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField
+    email = serializers.EmailField()
 
     def validate_email(self, value):
         if not User.objects.filter(email=value).exists:
@@ -66,13 +66,16 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         return value
     
     def save(self):
-        email = self.validated_data['email']
-        user = User.objects.get(email='email')
+        user_email = self.validated_data['email']
+        user = User.objects.get(email=user_email)
         if user.is_active:
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             reset_url = f"{settings.PASSWORD_RESET_CONFIRM_URL}/?uid:{uid}&token:{token}"
 
+            print(reset_url)
+
+            """
             send_mail(
             'Password Reset Request',
             f'Please click the following link to reset your password: {reset_url}',
@@ -80,6 +83,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             [email],
             fail_silently=False,
             )
+            """
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField()
