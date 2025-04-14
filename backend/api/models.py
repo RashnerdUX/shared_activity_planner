@@ -21,7 +21,7 @@ class CustomUser(AbstractUser):
 # Profile for users
 class UserProfile(models.Model):
     #Use the same id generated when the User was created for the User's profile
-    user_id = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
+    user_id = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     profile_image = models.CharField(max_length=10000)
     bio = models.TextField()
     notification_preferences = models.JSONField()
@@ -29,4 +29,4 @@ class UserProfile(models.Model):
     default_availability = models.JSONField()
 
     def __str__(self):
-        return self.user_id
+        return f"Profile for {self.user.username}"

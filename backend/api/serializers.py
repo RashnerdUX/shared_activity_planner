@@ -1,3 +1,5 @@
+#import pytz
+
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
@@ -35,15 +37,16 @@ class UserSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(read_only=True, source='user_id.id')
     profile_image = serializers.CharField()
     bio = serializers.CharField()
     notification_preferences = serializers.JSONField()
     timezone = serializers.CharField()
-    default_availability = serializers.CharField()
+    default_availability = serializers.JSONField()
 
     def create(self, validated_data):
-        return UserProfile.objects.create(validated_data)
+        return UserProfile.objects.create(**validated_data)
     
     def update(self, instance, validated_data):
         instance.profile_image = validated_data.get('profile_image', instance.profile_image)
@@ -53,6 +56,14 @@ class ProfileSerializer(serializers.Serializer):
         instance.default_availability = validated_data.get('default_availability', instance.default_availability)
         instance.save()
         return instance
+    
+    """
+    def validate_timezone(self, value):
+        if value not in pytz.all_timezones:
+            raise serializers.ValidationError(f"{value} is not a valid timezone.")
+        return value
+    """
+    # TODO: Write logic to validate notification preferences and default_availability 
     
     def validate(self, attrs):
         return super().validate(attrs)

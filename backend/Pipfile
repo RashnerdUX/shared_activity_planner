@@ -11,6 +11,7 @@ psycopg2 = "*"
 pillow = "*"
 djangorestframework-simplejwt = "*"
 django-oauth-toolkit = "*"
+pytz = "*"
 
 [dev-packages]
 
