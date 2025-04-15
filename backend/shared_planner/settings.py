@@ -86,7 +86,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "shared_activity_planner",
         "USER": "postgres",
-        "PASSWORD": "Femosik8@",
+        "PASSWORD": os.getenv('DATABASE_PASSWORD'),
         "HOST": "localhost",
         "PORT": "5432",
         #"OPTIONS": {
