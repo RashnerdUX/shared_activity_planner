@@ -1,3 +1,5 @@
 from .user_serializer import UserSerializer, ProfileSerializer
 from .friendship_serializer import FriendRequestSerializer, FriendsListSerializer
 from .password_serializer import PasswordResetConfirmSerializer, PasswordResetRequestSerializer
+from .event_serializer import EventSerializer
+from .group_serializer import GroupMemberSerializer, GroupSerializer

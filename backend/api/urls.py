@@ -26,4 +26,11 @@ urlpatterns = [
     path('user/friend_request/<int:pk>/accept/', views.AcceptFriendRequestView.as_view(), name="accept_friend_request"),
     path('user/friend_request/<int:pk>/deny/', views.DenyFriendRequestView.as_view(), name="deny_friend_request"),
     path('user/friends/unfriend/<int:user_id>/', views.UnfriendView.as_view(), name="unfriend_user"),
+    #Path to Events and Groups
+    path('user/group/events/', views.EventListView.as_view(), name="list_of_events"),
+    path('user/group/events/<int:pk>', views.EventView.as_view(), name="details_of_event"),
+    path('user/groups/', views.GroupListView.as_view(), name='group_list'),
+    path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
+    path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group-members'),
+    #Path to Location and Time
 ]
