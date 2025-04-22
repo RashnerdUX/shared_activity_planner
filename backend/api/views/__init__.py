@@ -5,3 +5,4 @@ from .friend_list_views import FriendListView
 from .friend_request_views import FriendRequestListView, SendFriendRequestView, AcceptFriendRequestView, DenyFriendRequestView, UnfriendView
 from .event_views import EventListView, EventView
 from .group_views import GroupDetailView, GroupListView, GroupMembersView
+from .participant_views import ParticipantView, InvitationView

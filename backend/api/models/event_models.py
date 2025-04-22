@@ -1,6 +1,6 @@
 from django.db import models
-from django.conf import settings
 from django.utils import timezone
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .group_models import Group, GroupMember
@@ -21,7 +21,7 @@ class Event(models.Model):
     creator = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="events")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_events")
     location = models.ForeignKey("Location", on_delete=models.SET_NULL, related_name="event_location", null=True, blank=True)
-    final_date = models.DateTimeField(blank=True)
+    final_date = models.DateTimeField(null=True,)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -43,13 +43,6 @@ class Event(models.Model):
         # Set is_private based on group if not explicitly set
         if self.is_private is None:
             self.is_private = self.group.is_private
-        # Validate creator is a group member with ADMIN or CREATOR role
-        if not GroupMember.objects.filter(
-            group=self.group,
-            user=self.creator,
-            role__in=['A', 'C']
-        ).exists():
-            raise ValidationError("Creator must be an admin or creator of the group.")
         super().save(*args, **kwargs)
     
     def set_final_date(self, date_time):

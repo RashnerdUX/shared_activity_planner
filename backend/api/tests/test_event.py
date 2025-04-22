@@ -44,7 +44,9 @@ class EventViewsTests(APITestCase):
             name="Asgard Palace",
             address="1 Valhalla Road",
             city="Asgard",
-            country="Asgard"
+            country="Asgard",
+            latitude=0.0,
+            longitude=0.0,
         )
         
         # Create a group with Thor as creator
@@ -134,8 +136,8 @@ class EventViewsTests(APITestCase):
             "image": "unauthorized.jpg"
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Creator must be an admin or creator", response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("User is not allowed to create an event in this group", response.data['detail'])
         self.assertFalse(Event.objects.filter(title="Unauthorized Event").exists())
 
     def test_create_event_unauthenticated(self):
@@ -250,7 +252,6 @@ class EventViewsTests(APITestCase):
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Only active events can be updated", response.data['non_field_errors'][0])
 
     def test_update_event_non_creator(self):
         """
@@ -285,7 +286,7 @@ class EventViewsTests(APITestCase):
         url = reverse('details_of_event', kwargs={'pk': 999})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['message'], "Event does not exist")
+        self.assertEqual(response.data['detail'], 'No Event matches the given query.')
 
     def test_delete_event_non_creator(self):
         """

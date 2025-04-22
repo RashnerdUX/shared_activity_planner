@@ -33,4 +33,7 @@ urlpatterns = [
     path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
     path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group-members'),
     #Path to Location and Time
+    #Path to Participants and Invitation
+    path('events/<int:pk>/participant/', views.ParticipantView.as_view(), name="event_participants"),
+    path('events/<int:pk>/invite/', views.InvitationView.as_view(), name="send_invites")
 ]

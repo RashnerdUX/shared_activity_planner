@@ -1,7 +1,9 @@
-from rest_framework import serializers
 from datetime import datetime
 
-from api.models import Event, CustomUser, Group, Location
+from rest_framework import serializers
+from django.utils import timezone
+
+from api.models import Event, CustomUser, Group, Location, GroupMember
 
 class EventSerializer(serializers.Serializer):
     """
@@ -14,10 +16,10 @@ class EventSerializer(serializers.Serializer):
     group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), help_text="Provide id for group associated with the Event")
     location = serializers.PrimaryKeyRelatedField(queryset=Location.objects.all(), help_text="Provide id for the location of the event")
     final_date = serializers.DateTimeField(read_only = True)
-    status = serializers.CharField(max_length=1, required=True, default=Event.ACTIVE)
+    status = serializers.CharField(max_length=1, default=Event.ACTIVE)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only = True)
-    canceled_at = serializers.DateTimeField(read_only = True, blank=True, null=True)
+    canceled_at = serializers.DateTimeField(read_only = True,allow_null=True)
     image = serializers.CharField(max_length=10000)
     is_private = serializers.BooleanField(default=False)
 
@@ -39,7 +41,6 @@ class EventSerializer(serializers.Serializer):
                 status = validated_data.pop("status") #Remove the value of status from validated data and apply the model methods to update it
                 if status == Event.CANCELED:
                     instance.cancel()
-                    instance.canceled_at = datetime.now()
                 elif status == Event.COMPLETED:
                     instance.complete()
 
