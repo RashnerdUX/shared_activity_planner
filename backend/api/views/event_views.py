@@ -11,7 +11,6 @@ class EventListView(APIView):
     """
     Can create a new event via this view and get all events that a user is associated with
     """
-    #permission_classes = [permissions.IsAuthenticated, CanCreateAnEventForGroup]
 
     def get_permissions(self):
         if self.request.method == "POST":

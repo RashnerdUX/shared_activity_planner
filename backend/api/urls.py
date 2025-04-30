@@ -28,11 +28,16 @@ urlpatterns = [
     path('user/friends/unfriend/<int:user_id>/', views.UnfriendView.as_view(), name="unfriend_user"),
     #Path to Events and Groups
     path('user/group/events/', views.EventListView.as_view(), name="list_of_events"),
-    path('user/group/events/<int:pk>', views.EventView.as_view(), name="details_of_event"),
+    path('user/group/event/<int:pk>', views.EventView.as_view(), name="details_of_event"),
     path('user/groups/', views.GroupListView.as_view(), name='group_list'),
     path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
     path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group-members'),
     #Path to Location and Time
+    path('event/<int:pk>/scheduling/', views.TimeOptionView.as_view(), name="event_scheduling"),
+    path('event/scheduling/', views.TimeOptionListView.as_view(), name="list_of_event_time" ),
+    path('event/<int:pk>/vote/', views.TimeVotingView.as_view(), name="time_voting"),
+    path('event/<int:pk>/vote_count/', views.GetTimeVotesView.as_view(), name="time_vote_count"),
+    path('event/<int:pk>/set-final-time/', views.ScheduleEventView.as_view(), name="set_final_time"),
     #Path to Participants and Invitation
     path('events/<int:pk>/participant/', views.ParticipantView.as_view(), name="event_participants"),
     path('events/<int:pk>/invite/', views.InvitationView.as_view(), name="send_invites")

@@ -71,8 +71,8 @@ class GroupMember(models.Model):
         (CREATOR, "Creator"),
     ]
 
-    group = models.ForeignKey(Group,on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group,on_delete=models.CASCADE, related_name="group_members")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="membership")
     role = models.CharField(max_length=1, choices=ROLE_CHOICE)
     joined_at = models.DateTimeField(auto_now_add=True)
 

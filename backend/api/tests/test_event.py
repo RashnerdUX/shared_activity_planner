@@ -3,8 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from api.models import Group, GroupMember, Event, Location
-from api.serializers import EventSerializer
+from api.models import Group, Event, Location
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 import datetime
@@ -39,7 +38,6 @@ class EventViewsTests(APITestCase):
         )
         
         # Create a location
-        # TODO: Edit this to create a Location object according to my implementation later
         self.location = Location.objects.create(
             name="Asgard Palace",
             address="1 Valhalla Road",
