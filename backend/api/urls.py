@@ -31,7 +31,7 @@ urlpatterns = [
     path('user/group/event/<int:pk>', views.EventView.as_view(), name="details_of_event"),
     path('user/groups/', views.GroupListView.as_view(), name='group_list'),
     path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
-    path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group-members'),
+    path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group_members'),
     #Path to Location and Time
     path('event/<int:pk>/scheduling/', views.TimeOptionView.as_view(), name="event_scheduling"),
     path('event/scheduling/', views.TimeOptionListView.as_view(), name="list_of_event_time" ),

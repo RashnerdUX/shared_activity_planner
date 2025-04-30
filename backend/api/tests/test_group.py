@@ -83,6 +83,7 @@ class GroupViewsTests(APITestCase):
             "is_private": False
         }
         response = self.client.post(url, data, format='json')
+        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], "Valhalla Heroes")
         self.assertEqual(response.data['created_by'], self.user.id)

@@ -1,4 +1,4 @@
-from django.db import models, DatabaseError
+from django.db import models, DatabaseError, transaction
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
@@ -23,18 +23,19 @@ class Group(models.Model):
 
     def save(self,**kwargs):
         # Check if this is a new group (no ID yet in the db)
-        # my first save override
         is_new = self.pk is None
-        super().save(**kwargs) #This saves the Group in the database
-        # Automatically add creator as a GroupMember with CREATOR role
-        try:
-            GroupMember.objects.create(
-                group=self,
-                user=self.created_by,
-                role=GroupMember.CREATOR
-            )
-        except Exception as e:
-            raise DatabaseError(f"Failed to add creator as group member: {str(e)}")
+        with transaction.atomic():  # Ensure atomicity
+            super().save(**kwargs)  # Save the Group in the database
+            # Automatically add creator as a GroupMember with CREATOR role for new groups
+            if is_new:
+                try:
+                    GroupMember.objects.create(
+                        group=self,
+                        user=self.created_by,
+                        role=GroupMember.CREATOR
+                    )
+                except Exception as e:
+                    raise DatabaseError(f"Failed to add creator as group member: {str(e)}")
     
     @staticmethod
     def has_group_role(user, group, roles):

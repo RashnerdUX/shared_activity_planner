@@ -31,24 +31,16 @@ class GroupMemberSerializer(serializers.ModelSerializer):
         return data
 
 class GroupSerializer(serializers.ModelSerializer):
-    created_by = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), help_text="The user who created the group")
+    created_by = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), help_text="The user who created the group", required=False)
     created_at = serializers.DateTimeField(read_only=True, help_text="When the group was created")
-    members = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), many=True, help_text="List of user IDs who are members of the group")
-    member_details = GroupMemberSerializer(source='groupmember_set', many=True, read_only=True, help_text="Details of group members including roles")
+    members = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), many=True, help_text="List of user IDs who are members of the group", required=False)
+    member_details = GroupMemberSerializer(source='group_members', many=True, read_only=True, help_text="Details of group members including roles")
 
     class Meta:
         model = Group
         fields = ['id', 'name', 'description', 'created_by', 'created_at', 'is_private', 'members', 'member_details']
         read_only_fields = ['id', 'created_at', 'member_details']
 
-    def validate_members(self, value):
-        #Ensure the members list has a user
-        if not value:
-            raise serializers.ValidationError("Group must have at least one member (the creator)")
-        #Ensure the creator the group is in the members list
-        if self.initial_data.get('created_by') not in [user.id for user in value]:
-            raise serializers.ValidationError("The creator must be included in the members list")
-        return value
 
     def create(self, validated_data):
         """

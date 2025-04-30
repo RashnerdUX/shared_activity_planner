@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
-from api.models import Group, GroupMember
+from api.models import Group, GroupMember, CustomUser
 from api.serializers import GroupSerializer, GroupMemberSerializer
 
 
@@ -93,7 +93,7 @@ class GroupMembersView(APIView):
         List all members of a specific group.
         """
         group = self.get_object(pk)
-        members = group.groupmember_set.all()
+        members = group.group_members.all()
         serializer = GroupMemberSerializer(members, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -116,7 +116,7 @@ class GroupMembersView(APIView):
             )
         
         try:
-            user = get_object_or_404(settings.AUTH_USER_MODEL, pk=user_id)
+            user = get_object_or_404(CustomUser, pk=user_id)
             group.add_member(user)
             member = GroupMember.objects.get(group=group, user=user)
             serializer = GroupMemberSerializer(member)
@@ -143,7 +143,7 @@ class GroupMembersView(APIView):
             )
         
         try:
-            user = get_object_or_404(settings.AUTH_USER_MODEL, pk=user_id)
+            user = get_object_or_404(CustomUser, pk=user_id)
             group.remove_member(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
