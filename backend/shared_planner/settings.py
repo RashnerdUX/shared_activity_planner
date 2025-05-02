@@ -167,3 +167,20 @@ EMAIL_HOST_PASSWORD= os.getenv('EMAIL_HOST_PASSWORD')
 
 
 PASSWORD_RESET_CONFIRM_URL = 'https://yourfrontenddomain.com/reset-password'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'api.permissions': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

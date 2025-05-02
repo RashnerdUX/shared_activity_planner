@@ -40,5 +40,12 @@ urlpatterns = [
     path('event/<int:pk>/set-final-time/', views.ScheduleEventView.as_view(), name="set_final_time"),
     #Path to Participants and Invitation
     path('events/<int:pk>/participant/', views.ParticipantView.as_view(), name="event_participants"),
-    path('events/<int:pk>/invite/', views.InvitationView.as_view(), name="send_invites")
+    path('events/<int:pk>/invite/', views.InvitationView.as_view(), name="send_invites"),
+    #Path to Task and Task Categories
+    path('event/tasks/', views.TaskListView.as_view(), name='task_list'),
+    path('event/tasks/<int:pk>/', views.TaskView.as_view(), name='task_detail'), 
+    path('event/tasks/<int:pk>/assign/', views.TaskAssignmentView.as_view(), name='task_assign'),
+    path('event/tasks/<int:pk>/status/', views.ChangeTaskStatusView.as_view(), name='task_status'),
+    path('event/task-categories/', views.TaskCategoryListView.as_view(), name='task_category_list'),
+    path('event/task-categories/<int:pk>/', views.TaskCategoryView.as_view(), name='task_category_detail'),
 ]

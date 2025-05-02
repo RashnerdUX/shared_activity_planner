@@ -15,9 +15,9 @@ class TimeOptionListView(APIView):
         """
         This retrieves all the time options for a view
         """
-        event_id = request.query_params.get("event_id")
+        event = request.query_params.get("event")
         try:
-            event_timeoptions = TimeOption.objects.filter(event=event_id)
+            event_timeoptions = TimeOption.objects.filter(event=event)
             serialized = TimeOptionSerializer(event_timeoptions, many=True)
             return response.Response(serialized.data, status.HTTP_200_OK)
         except TimeOption.DoesNotExist:

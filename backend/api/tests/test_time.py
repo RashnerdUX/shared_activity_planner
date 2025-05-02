@@ -133,7 +133,7 @@ class TestTimeAndScheduling(APITestCase):
             start_time = "2025-05-10T20:00:00Z",
             is_chosen = False
         )
-        url = reverse('list_of_event_time', query={"event_id":self.event.id})
+        url = reverse('list_of_event_time', query={"event":self.event.id})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
