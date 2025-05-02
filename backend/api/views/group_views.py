@@ -8,6 +8,7 @@ from django.conf import settings
 
 from api.models import Group, GroupMember, CustomUser
 from api.serializers import GroupSerializer, GroupMemberSerializer
+from api.permissions import CanManageGroupMembers
 
 
 class GroupListView(APIView):
@@ -80,7 +81,7 @@ class GroupDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class GroupMembersView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanManageGroupMembers]
 
     def get_object(self, pk):
         """
@@ -93,6 +94,7 @@ class GroupMembersView(APIView):
         List all members of a specific group.
         """
         group = self.get_object(pk)
+        self.check_object_permissions(request, group)
         members = group.group_members.all()
         serializer = GroupMemberSerializer(members, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -102,11 +104,7 @@ class GroupMembersView(APIView):
         Add a new member to the group. Only the creator or admins can add members.
         """
         group = self.get_object(pk)
-        if not Group.has_group_role(request.user, group, [GroupMember.CREATOR, GroupMember.ADMIN]):
-            return Response(
-                {"detail": "Only the creator or admins can add members"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        self.check_object_permissions(request, group)
         
         user_id = request.data.get('user_id')
         if not user_id:
@@ -129,11 +127,7 @@ class GroupMembersView(APIView):
         Remove a member from the group. Only the creator or admins can remove members.
         """
         group = self.get_object(pk)
-        if not Group.has_group_role(request.user, group, [GroupMember.CREATOR, GroupMember.ADMIN]):
-            return Response(
-                {"detail": "Only the creator or admins can remove members"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        self.check_object_permissions(request, group)
         
         user_id = request.data.get('user_id')
         if not user_id:
@@ -154,11 +148,7 @@ class GroupMembersView(APIView):
         Change a member's role in the group. Only the creator or admins can change roles.
         """
         group = self.get_object(pk)
-        if not Group.has_group_role(request.user, group, [GroupMember.CREATOR, GroupMember.ADMIN]):
-            return Response(
-                {"detail": "Only the creator or admins can change member roles"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        self.check_object_permissions(request, group)
         
         user_id = request.data.get('user_id')
         new_role = request.data.get('role')

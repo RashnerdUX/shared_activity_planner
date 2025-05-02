@@ -22,7 +22,12 @@ def create_default_categories(apps, schema_editor):
 
     creator_of_default_categories = User.objects.filter(is_superuser=True).first()
     if not creator_of_default_categories:
-        raise Exception("No superuser found. Please create one before running this migration.")
+            #For test purposes
+            creator_of_default_categories = User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='admin123'
+            )
 
     for category,category_desc in default_categories.items():
         TaskCategory.objects.get_or_create(

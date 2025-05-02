@@ -220,14 +220,12 @@ class TestTimeAndScheduling(APITestCase):
             "time_option":self.time_option1.id
         }
         response_vote = self.client.post(url_vote, data)
-
-        #Create another time option to check if it's unaffected by the modification
+        #Create another time option
         self.time_option2 = TimeOption.objects.create(
             event = self.event,
             start_time = "2025-05-10T20:00:00Z",
             is_chosen = False
         )
-
         #Modify the vote after creating it
         vote = TimeVote.objects.filter(user=self.user, time_option__event=self.event).first()
         if vote:
@@ -236,12 +234,12 @@ class TestTimeAndScheduling(APITestCase):
             vote_id = None
             raise Exception("Vote does not exist")
         
-        url_modify = reverse('time_voting', kwargs={"pk": vote.id})
+        url_modify = reverse('modify_time_vote', kwargs={"pk": vote.id})
         data_modify_vote = {
             "time_option":self.time_option2.id
         }
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accesstoken}')
         response = self.client.patch(url_modify, data_modify_vote)
-
         self.assertEqual(response.status_code, 200)
     
     def test_count_votes(self):

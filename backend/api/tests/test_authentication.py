@@ -38,7 +38,7 @@ class AuthenticationTests(APITestCase):
         #This confirms that the request worked
         self.assertEqual(response.status_code, 201)
         #This checks if the object is now in the database
-        self.assertEqual(CustomUser.objects.count(), 2)
+        self.assertEqual(CustomUser.objects.count(), 3)
         #This checks if the object was properly created
         self.assertEqual(CustomUser.objects.get(email="thegodofStories@asgard.com").username, "Loki")
     

@@ -6,7 +6,7 @@ from django.db.models import Count, Max
 
 from api.models import TimeOption, TimeVote, Event, GroupMember, Participant
 from api.serializers import TimeOptionSerializer, TimeVoteSerializer
-from api.permissions import CanCreateATimeOption
+from api.permissions import CanCreateATimeOption, CanVoteOnEventAndModifyVote
 
 class TimeOptionListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -103,7 +103,7 @@ class TimeVotingView(APIView):
     """
     This is where voting will take place. The client will pass in their time option and then the system will register that as a vote. Voting can be carried out by anyone attending an event irrespective of their role
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CanVoteOnEventAndModifyVote]
 
     def post(self, request, pk):
         event = Event.objects.get(pk=pk)

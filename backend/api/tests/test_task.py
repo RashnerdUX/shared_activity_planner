@@ -293,13 +293,13 @@ class TaskAndTaskCategoryTests(APITestCase):
         url = reverse('task_category_list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]['name'], "Default")  # Ordered by name
+        self.assertEqual(len(response.data), 12)
+        self.assertEqual(response.data[0]['name'], "Activities")  # Ordered by name
 
     def test_create_task_category_regular_user(self):
         url = reverse('task_category_list')
         data = {
-            "name": "Logistics",
+            "name": "Logistics & Transport F",
             "description": "Tasks for event logistics",
             "is_default": False,
             "created_by": self.user.id,
@@ -307,8 +307,8 @@ class TaskAndTaskCategoryTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['name'], "Logistics")
-        self.assertEqual(TaskCategory.objects.count(), 3)
+        self.assertEqual(response.data['name'], "Logistics & Transport F")
+        self.assertEqual(TaskCategory.objects.count(), 13)
 
     def test_create_default_task_category_non_admin(self):
         url = reverse('task_category_list')
