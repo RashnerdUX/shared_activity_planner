@@ -6,3 +6,4 @@ from .participant_models import Participant
 from .location_model import Location
 from .time_models import TimeOption, TimeVote
 from .task_models import Task, TaskCategory
+from .comment_model import Comment
