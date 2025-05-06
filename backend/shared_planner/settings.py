@@ -164,6 +164,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'akhigbek6@gmail.com'
 EMAIL_HOST_PASSWORD= os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 PASSWORD_RESET_CONFIRM_URL = 'https://yourfrontenddomain.com/reset-password'
@@ -184,3 +185,5 @@ LOGGING = {
         },
     },
 }
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"

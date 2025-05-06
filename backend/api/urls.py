@@ -38,7 +38,7 @@ urlpatterns = [
     path('event/<int:pk>/vote/', views.TimeVotingView.as_view(), name="time_voting"),
     path('event/vote/<int:pk>/', views.TimeVotingView.as_view(), name="modify_time_vote"),
     path('event/<int:pk>/vote_count/', views.GetTimeVotesView.as_view(), name="time_vote_count"),
-    path('event/<int:pk>/set-final-time/', views.ScheduleEventView.as_view(), name="set_final_time"),
+    path('event/<int:pk>/set_final_time/', views.ScheduleEventView.as_view(), name="set_final_time"),
     #Path to Participants and Invitation
     path('events/<int:pk>/participant/', views.ParticipantView.as_view(), name="event_participants"),
     path('events/<int:pk>/invite/', views.InvitationView.as_view(), name="send_invites"),
@@ -49,4 +49,6 @@ urlpatterns = [
     path('event/tasks/<int:pk>/status/', views.ChangeTaskStatusView.as_view(), name='task_status'),
     path('event/task-categories/', views.TaskCategoryListView.as_view(), name='task_category_list'),
     path('event/task-categories/<int:pk>/', views.TaskCategoryView.as_view(), name='task_category_detail'),
+    #Path to comment and notifications
+    path("event/comments/", views.EventCommentsView.as_view(), name="event_comments"),
 ]
