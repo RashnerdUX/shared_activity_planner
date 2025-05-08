@@ -16,7 +16,7 @@ class Participant(models.Model):
         (DECLINED, "Declined"),
         (MAYBE, "Maybe"),
     ]
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_participant")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="participants")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="event_pariticipation")
     rsvp_status = models.CharField(choices=RSVP_CHOICES, default=PENDING)
     joined_at = models.DateTimeField(auto_now_add=True)

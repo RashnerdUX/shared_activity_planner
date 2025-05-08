@@ -7,6 +7,9 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 
+from api.utils.emails import password_reset_email
+from api.utils.html_emails import html_password_reset_email
+
 #This sets the user variable to current User model
 User = get_user_model()
 
@@ -28,15 +31,22 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
             print(reset_url)
 
-            """
+            subject, body = password_reset_email(user_name=user.username, password_reset_link=reset_url)
+            html_ver = html_password_reset_email(
+                user_name=user.username,
+                password_reset_link=reset_url,
+                company_name="To be known",
+                support_email= settings.DEFAULT_FROM_EMAIL,
+            )
+            
             send_mail(
-            'Password Reset Request',
-            f'Please click the following link to reset your password: {reset_url}',
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
+            subject=subject,
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list= [user.email],
+            html_message= html_ver,
             fail_silently=False,
             )
-            """
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField()

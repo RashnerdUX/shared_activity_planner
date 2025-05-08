@@ -7,3 +7,4 @@ from .participant_serializer import ParticipantSerializer
 from .time_serializer import TimeOptionSerializer, TimeVoteSerializer
 from .task_serializer import TaskSerializer, TaskCategorySerializer
 from .comment_serializer import CommentSerializer
+from .notification_serializer import NotificationSerializer, NotificationPreferenceSerializer

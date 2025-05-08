@@ -9,3 +9,4 @@ from .participant_views import ParticipantView, InvitationView
 from .time_views import TimeVotingView, TimeOptionView, GetTimeVotesView, ScheduleEventView, TimeOptionListView
 from .task_views import TaskListView, TaskView, TaskCategoryView, TaskCategoryListView, TaskAssignmentView, ChangeTaskStatusView
 from .comment_view import EventCommentsView
+from .notification_view import UserNotificationsView, NotificationPreferenceListUpdateView, MarkNotificationAsReadView, MarkAllNotificationsAsReadView

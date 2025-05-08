@@ -32,7 +32,7 @@ urlpatterns = [
     path('user/groups/', views.GroupListView.as_view(), name='group_list'),
     path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
     path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group_members'),
-    #Path to Location and Time
+    #Path to Time and scheduling
     path('event/<int:pk>/scheduling/', views.TimeOptionView.as_view(), name="event_scheduling"),
     path('event/scheduling/', views.TimeOptionListView.as_view(), name="list_of_event_time" ),
     path('event/<int:pk>/vote/', views.TimeVotingView.as_view(), name="time_voting"),
@@ -49,6 +49,11 @@ urlpatterns = [
     path('event/tasks/<int:pk>/status/', views.ChangeTaskStatusView.as_view(), name='task_status'),
     path('event/task-categories/', views.TaskCategoryListView.as_view(), name='task_category_list'),
     path('event/task-categories/<int:pk>/', views.TaskCategoryView.as_view(), name='task_category_detail'),
-    #Path to comment and notifications
+    #Path to Comment and Notifications
     path("event/comments/", views.EventCommentsView.as_view(), name="event_comments"),
+    path("user/notifications/", views.UserNotificationsView.as_view(), name="user_notifcations"),
+    path("notifications/<int:pk>/read/", views.MarkNotificationAsReadView.as_view(), name="mark_notification_as_read"),
+    path("notifications/read_all/", views.MarkAllNotificationsAsReadView.as_view(), name="mark_all_notifications_as_read"),
+    path("notifications/preferences/", views.NotificationPreferenceListUpdateView.as_view(), name="notification_preferences"),
+    #Path to Location
 ]
