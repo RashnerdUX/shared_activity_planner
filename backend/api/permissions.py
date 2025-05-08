@@ -259,3 +259,30 @@ class CanAssignTask(permissions.BasePermission):
             except GroupMember.DoesNotExist:
                 return False
         return False
+    
+
+class CanCommentInEvent(permissions.BasePermission):
+    """
+    Ensures only event participants can comment in a discussion forum and see all the comments of an event being discussed
+    """
+    def has_permission(self, request, view):
+        event_id = request.query_params.get("event_id")
+        user = request.user
+
+        event = Event.objects.get(pk=event_id)
+
+        print(event.event_participant)
+        
+        #Confirm that the user is an event participant
+        if user in event.participant__user:
+            return True
+        
+        return False
+
+class CanSetLocation(permissions.BasePermission):
+    """
+    Ensures only the event creators or group admins can set the location for an event to take place
+    """
+    def has_object_permission(self, request, view, obj):
+        event = Event.objects.filter(location=obj).first()
+        return event and event.creator == request.user

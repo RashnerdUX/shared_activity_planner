@@ -28,7 +28,7 @@ urlpatterns = [
     path('user/friends/unfriend/<int:user_id>/', views.UnfriendView.as_view(), name="unfriend_user"),
     #Path to Events and Groups
     path('user/group/events/', views.EventListView.as_view(), name="list_of_events"),
-    path('user/group/event/<int:pk>', views.EventView.as_view(), name="details_of_event"),
+    path('user/group/event/<int:pk>/', views.EventView.as_view(), name="details_of_event"),
     path('user/groups/', views.GroupListView.as_view(), name='group_list'),
     path('user/groups/<int:pk>/', views.GroupDetailView.as_view(), name='group_details'),
     path('user/groups/<int:pk>/members/', views.GroupMembersView.as_view(), name='group_members'),
@@ -55,5 +55,4 @@ urlpatterns = [
     path("notifications/<int:pk>/read/", views.MarkNotificationAsReadView.as_view(), name="mark_notification_as_read"),
     path("notifications/read_all/", views.MarkAllNotificationsAsReadView.as_view(), name="mark_all_notifications_as_read"),
     path("notifications/preferences/", views.NotificationPreferenceListUpdateView.as_view(), name="notification_preferences"),
-    #Path to Location
 ]

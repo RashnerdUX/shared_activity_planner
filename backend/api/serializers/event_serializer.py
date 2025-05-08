@@ -3,7 +3,8 @@ from datetime import datetime
 from rest_framework import serializers
 from django.utils import timezone
 
-from api.models import Event, CustomUser, Group, Location, GroupMember
+from api.models import Event, CustomUser, Group, Location
+from .location_serializer import LocationSerializer
 
 class EventSerializer(serializers.Serializer):
     """
@@ -14,7 +15,7 @@ class EventSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=300, required=False,default="No description for this event")
     creator = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), help_text="Provide id of Creator of the event")
     group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), help_text="Provide id for group associated with the Event")
-    location = serializers.PrimaryKeyRelatedField(queryset=Location.objects.all(), help_text="Provide id for the location of the event")
+    location = LocationSerializer(required=False)
     final_date = serializers.DateTimeField(read_only = True)
     status = serializers.CharField(max_length=1, default=Event.ACTIVE)
     created_at = serializers.DateTimeField(read_only=True)
@@ -31,14 +32,23 @@ class EventSerializer(serializers.Serializer):
     def create(self, validated_data):
         if "is_private" not in validated_data:
             validated_data["is_private"] = validated_data["group"].is_private
-        return Event.objects.create(**validated_data)
+
+        location_data = validated_data.pop('location', None)
+        event = Event.objects.create(**validated_data)
+        if location_data:
+            print(location_data)
+            event_location = Location.objects.create(**location_data)
+            event.location = event_location
+            event.save()
+            validated_data["location"] = event_location
+        return event
     
     def update(self, instance:Event, validated_data):
         if instance.status != Event.ACTIVE:
             raise serializers.ValidationError("Only active events can be updated")
         else:
             if "status" in validated_data:
-                status = validated_data.pop("status") #Remove the value of status from validated data and apply the model methods to update it
+                status = validated_data.pop("status")
                 if status == Event.CANCELED:
                     instance.cancel()
                 elif status == Event.COMPLETED:
@@ -50,7 +60,14 @@ class EventSerializer(serializers.Serializer):
                 validated_data.pop("is_private", None)
         
         if "location" in validated_data:
-            instance.set_location(validated_data.pop("location"))
+            location_data = validated_data.pop('location', None)
+            if instance.location:
+                for attr, value in location_data.items():
+                    setattr(instance.location, attr, value)
+                instance.location.save()
+            else:
+                location = Location.objects.create(**location_data)
+                instance.location = location
 
         if "final_date" in validated_data:
             instance.set_final_date(validated_data.pop("final_date"))

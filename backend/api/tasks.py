@@ -1,6 +1,8 @@
 from celery import shared_task
+from rest_framework import serializers
 
-from api.models import CustomUser, NotificationPreference, Notification, Comment
+from api.models import CustomUser, NotificationPreference, Notification, Comment, Location
+from api.utils.maps import geocode_with_cache
 from django.core.mail import send_mail
 
 @shared_task
@@ -102,6 +104,26 @@ def notify_event_participants_of_comments(already_notified_users, comment_id:int
                 content=f"{comment.user.username} commented in the forum of an event you're attending: {comment.content[:50]}..."
                 )
 
+@shared_task
+def standardize_location(address:str, location_id:int):
+    """
+    This task helps to standardize the location object stored in the database
+    """
+    #Check using the LocationSerializer function that checks if the location was cached in the last 24hours
+    geocode_data = geocode_with_cache(address)
 
-        
+    if not geocode_data:
+        return {"error":"The address couldn't be geocoded. Please provide another address"}
+    
+    location_data = geocode_data[0]['geometry']['location']
+
+    try:
+        location_obj = Location.objects.get(pk=location_id)
+        location_obj.latitude = location_data['lat']
+        location_obj.longitude = location_data['lng']
+        location_obj.address = geocode_data[0]["formatted_address"]
+        location_obj.save()
+        return {"message":"The Location object has been standardized with coordinates and GMaps address"}
+    except Location.DoesNotExist:
+        return {"error":"The Location object doesn't exist"}
 

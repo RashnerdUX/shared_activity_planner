@@ -73,7 +73,7 @@ class EventView(APIView):
                 serialized.save()
                 return response.Response(data=serialized.data, status=status.HTTP_200_OK)
             return  response.Response(data=serialized.errors, status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except Event.DoesNotExist:
             return response.Response(data={"message":"Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
     
     def delete(self, request, pk):

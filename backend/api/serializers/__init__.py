@@ -8,3 +8,4 @@ from .time_serializer import TimeOptionSerializer, TimeVoteSerializer
 from .task_serializer import TaskSerializer, TaskCategorySerializer
 from .comment_serializer import CommentSerializer
 from .notification_serializer import NotificationSerializer, NotificationPreferenceSerializer
+from .location_serializer import LocationSerializer

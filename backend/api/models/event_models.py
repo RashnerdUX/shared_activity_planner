@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .group_models import Group, GroupMember
+from .location_model import Location
 
 class Event(models.Model):
     COMPLETED = "C"
@@ -20,7 +21,7 @@ class Event(models.Model):
     description = models.TextField()
     creator = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="events")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_events")
-    location = models.ForeignKey("Location", on_delete=models.SET_NULL, related_name="event_location", null=True, blank=True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name="event_location", null=True, blank=True)
     final_date = models.DateTimeField(null=True,)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,13 +49,6 @@ class Event(models.Model):
     def set_final_date(self, date_time):
         if self.status == self.ACTIVE:
             self.final_date = date_time
-            self.save()
-            return True
-        return False
-    
-    def set_location(self, location):
-        if self.status == self.ACTIVE:
-            self.location = location
             self.save()
             return True
         return False
