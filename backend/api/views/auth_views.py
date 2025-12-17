@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import response, status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, OpenApiTypes
+from rest_framework_simplejwt import serializers
 
 from ..serializers import (UserSerializer)
 
@@ -11,8 +13,19 @@ from ..serializers import (UserSerializer)
 User = get_user_model()
 
 class RegisterView(APIView):
-
+    """
+    This endpoint is used to register and create a user for the shared planner app
+    Once a user is created, there's a post-save signal that creates a friendlist table in the db for the specific user
+    """
     permission_classes = [permissions.AllowAny]
+
+    @extend_schema(
+        request=UserSerializer,
+        responses={
+            201: UserSerializer,
+            400: OpenApiTypes.OBJECT 
+        }
+    )
     def post(self, request):
         user = UserSerializer(data=request.data)
         if user.is_valid():
@@ -23,8 +36,19 @@ class RegisterView(APIView):
 #This allows user to login with either username or email and password
 #This will also include Oauth2 if possible
 class LoginView(APIView):
+    """
+    This endpoint is used to login a user for the shared planner app
+    It will create a Refresh token that lasts 24 hours and a corresponding Access Token that lasts an hour
+    """
     permission_classes = [permissions.AllowAny]
 
+    @extend_schema(
+        request=serializers.TokenObtainPairSerializer,
+        responses={
+            201: serializers.TokenObtainPairSerializer,
+            400: OpenApiTypes.OBJECT 
+        }
+    )
     def post(self, request):
         email = request.data.get('email') or request.data.get('email_address')
         username = request.data.get('username')
@@ -65,8 +89,19 @@ class LoginView(APIView):
 
 #This will ensure User is logged out
 class LogoutView(APIView):
+    """
+    This endpoint logs a user out and denies them access to any view that requires authorization
+    This endpoint will blacklist a Refreshtoken and prevent it from being used to create an access token again
+    """
     permission_classes = [permissions.IsAuthenticated]
     
+    @extend_schema(
+        request=serializers.TokenBlacklistSerializer,
+        responses={
+            201: serializers.TokenBlacklistSerializer,
+            400: OpenApiTypes.OBJECT 
+        }
+    )
     def post(self, request):
         try:
             refresh_token = request.data.get('refresh_token')
