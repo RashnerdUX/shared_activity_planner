@@ -3,7 +3,7 @@ import logging
 from rest_framework import permissions, request
 from django.shortcuts import get_object_or_404
 
-from .models import GroupMember, Event, Group, Participant, TimeVote
+from .models import GroupMember, Event, Group, Participant, TimeVote, Comment
 
 logger = logging.getLogger(__name__)
 
@@ -271,13 +271,21 @@ class CanCommentInEvent(permissions.BasePermission):
 
         event = Event.objects.get(pk=event_id)
 
-        print(event.event_participant)
+        print(event.participants)
         
         #Confirm that the user is an event participant
-        if user in event.participant__user:
+        if event.participants.filter(user=user).exists():
             return True
-        
         return False
+    
+class CanDeleteAComment(permissions.BasePermission):
+    """
+    Ensures only the creator of a comment can actually modify and delete the comment. Admin and Event Creator are also allowed.
+    """
+    message = "You do not have permission to modify or delete this comment."
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return obj.user == user or user.is_staff or obj.event.creator == user
 
 class CanSetLocation(permissions.BasePermission):
     """
