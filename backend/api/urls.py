@@ -30,7 +30,7 @@ urlpatterns = [
     path('event/<int:pk>/scheduling/', views.TimeOptionView.as_view(), name="event_scheduling"),
     path('event/scheduling/', views.TimeOptionListView.as_view(), name="list_of_event_time" ),
     path('event/<int:pk>/vote/', views.TimeVotingView.as_view(), name="time_voting"),
-    path('event/vote/<int:pk>/', views.TimeVotingView.as_view(), name="modify_time_vote"),
+    path('event/vote/<int:pk>/', views.ModifyTimeVoteView.as_view(), name="modify_time_vote"),
     path('event/<int:pk>/vote_count/', views.GetTimeVotesView.as_view(), name="time_vote_count"),
     path('event/<int:pk>/set_final_time/', views.ScheduleEventView.as_view(), name="set_final_time"),
     #Path to Participants and Invitation

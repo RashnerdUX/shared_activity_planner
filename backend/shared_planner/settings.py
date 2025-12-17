@@ -196,8 +196,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'ENUM_NAME_OVERRIDES': {
-        'TaskStatus': 'TaskStatusEnum',
-        'NotificationTypeEnum': 'api.models.notification_model.Notification.notification_type.field.choices',
+        'TaskStatusEnum': 'api.models.task_models.Task.STATUS_CHOICES',
+        'NotificationTypeEnum': 'api.models.notification_model.Notification.RELATED_TYPE_CHOICES',
     },
     # OTHER SETTINGS
 }

@@ -148,6 +148,48 @@ class TimeVotingView(APIView):
             return response.Response({"message":f"Your vote could not be updated", "errors": serialized.errors}, status.HTTP_400_BAD_REQUEST)
         except TimeVote.DoesNotExist:
             return response.Response({"message": "Vote does not exist"},status=status.HTTP_404_NOT_FOUND)
+
+class ModifyTimeVoteView(APIView):
+    """
+    This view is for modifying an existing time vote. It receives the vote id.
+    """
+    permission_classes = [permissions.IsAuthenticated, CanVoteOnEventAndModifyVote]
+    serializer_class = TimeVoteSerializer
+
+    @extend_schema(operation_id='cast_vote_by_vote_id', request=TimeVoteSerializer, responses={200: None})
+    def post(self, request, pk):
+        """
+        Cast a vote using vote ID
+        """
+        try:
+            vote = TimeVote.objects.get(pk=pk)
+            event = vote.time_option.event
+            data = request.data
+            serialized = TimeVoteSerializer(data=data, context={"event": event, "request": request})
+            if serialized.is_valid():
+                serialized.save(user=request.user)
+                time_date = TimeOption.objects.get(pk=data["time_option"]).start_time
+                return response.Response({"message": f"Your vote has been casted for {event.title} to hold on {time_date}"}, status.HTTP_200_OK)
+            return response.Response({"message": f"Your vote could not be casted for the event"}, status.HTTP_400_BAD_REQUEST)
+        except TimeVote.DoesNotExist:
+            return response.Response({"message": "Vote does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+    @extend_schema(operation_id='modify_existing_vote', request=TimeVoteSerializer, responses={200: None})
+    def patch(self, request, pk):
+        """
+        Update an existing vote using vote ID
+        """
+        try:    
+            vote = TimeVote.objects.get(pk=pk)
+            event = vote.time_option.event
+            data = request.data
+            serialized = TimeVoteSerializer(instance=vote, data=data, context={"request": request, "event": event}, partial=True)
+            if serialized.is_valid():
+                serialized.save()
+                return response.Response({"message": f"Your vote has been updated successfully"}, status.HTTP_200_OK)
+            return response.Response({"message": f"Your vote could not be updated", "errors": serialized.errors}, status.HTTP_400_BAD_REQUEST)
+        except TimeVote.DoesNotExist:
+            return response.Response({"message": "Vote does not exist"}, status=status.HTTP_404_NOT_FOUND)
     
 class GetTimeVotesView(APIView):
     permission_classes = [permissions.IsAuthenticated]

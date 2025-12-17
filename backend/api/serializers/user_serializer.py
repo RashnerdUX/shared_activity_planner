@@ -3,6 +3,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 from ..models import UserProfile, FriendsList, FriendRequest
 
@@ -33,7 +35,7 @@ class UserSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(read_only=True, source='user_id.id')
+    user_id = serializers.IntegerField(read_only=True, source='user_id.id', help_text='User ID associated with this profile')
     profile_image = serializers.CharField()
     bio = serializers.CharField()
     notification_preferences = serializers.JSONField()
