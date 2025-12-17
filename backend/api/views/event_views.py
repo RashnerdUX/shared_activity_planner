@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions, response, status
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied, NotFound
+from drf_spectacular.utils import extend_schema
 
 from api.permissions import CanEditEventDetails,CanCreateAnEventForGroup
 from api.models import Event
@@ -9,7 +10,7 @@ from api.serializers import EventSerializer
 
 class EventListView(APIView):
     """
-    Can create a new event via this view and get all events that a user is associated with
+    This endpoint allows a client to retrieve a list of events that they are associated with and allows an admin/creator of a group to create an event for the group
     """
 
     def get_permissions(self):
@@ -17,11 +18,13 @@ class EventListView(APIView):
             return [permissions.IsAuthenticated(), CanCreateAnEventForGroup()]
         return [permissions.IsAuthenticated()]
 
+    @extend_schema(request=EventSerializer,responses={200:EventSerializer,})
     def get(self, request):
         event = Event.objects.filter(group__members = request.user)
         serialized = EventSerializer(event, many=True)
         return response.Response(data=serialized.data, status=status.HTTP_200_OK)
     
+    @extend_schema(request=EventSerializer,responses={201:EventSerializer,})
     def post(self, request):
         serialized = EventSerializer(data=request.data, context={"request":request})
         if serialized.is_valid():
@@ -36,12 +39,14 @@ class EventView(APIView):
         event = get_object_or_404(Event,pk=pk)
         return event
 
+    @extend_schema(request=EventSerializer,responses={200:EventSerializer,})
     def get(self, request, pk):
         event = self.get_object(pk=pk)
         self.check_object_permissions(self.request, event)
         serialized = EventSerializer(event)
         return response.Response(data=serialized.data, status=status.HTTP_200_OK)
     
+    @extend_schema(request=EventSerializer,responses={200:EventSerializer,})
     def put(self, request, pk):
         try:
             event = self.get_object(pk=pk)
@@ -63,6 +68,7 @@ class EventView(APIView):
                 return response.Response(data=serialized.data, status=status.HTTP_200_OK)
             return  response.Response(data=serialized.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @extend_schema(request=EventSerializer,responses={200:EventSerializer,})
     def patch(self, request, pk):
         data = request.data 
         try:
@@ -76,6 +82,7 @@ class EventView(APIView):
         except Event.DoesNotExist:
             return response.Response(data={"message":"Event does not exist"}, status=status.HTTP_404_NOT_FOUND)
     
+    @extend_schema(request=EventSerializer,responses={200:EventSerializer,})
     def delete(self, request, pk):
         try:
             event = self.get_object(pk=pk)

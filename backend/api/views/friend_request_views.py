@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema
 
 from rest_framework import response,status, permissions
 from rest_framework.views import APIView

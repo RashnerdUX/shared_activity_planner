@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema
 
 from rest_framework import response, status, permissions
 from rest_framework.views import APIView
-
 
 from ..serializers import (FriendsListSerializer,)
 from ..models import (FriendsList)
@@ -11,8 +11,12 @@ from ..models import (FriendsList)
 User = get_user_model()
 
 class FriendListView(APIView):
+    """
+    This endpoint allows a client to see the complete list of friends that they have. Any authenticated user is allowed to do this
+    """
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=FriendsListSerializer,responses={200:FriendsListSerializer,})
     def get(self, request):
         try:
             friends_object = FriendsList.objects.get(user=request.user)
