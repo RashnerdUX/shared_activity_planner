@@ -1,5 +1,8 @@
+from typing import Optional
 from django.core.cache import cache
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 from api.models import Location
 
@@ -7,7 +10,8 @@ from api.models import Location
 class LocationSerializer(serializers.ModelSerializer):
     map_data = serializers.SerializerMethodField()
     
-    def get_map_data(self, obj):
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_map_data(self, obj) -> Optional[dict]:
         """
         Format data for map display
         """

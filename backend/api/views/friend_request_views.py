@@ -13,7 +13,9 @@ User = get_user_model()
 
 class FriendRequestListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FriendRequestSerializer
 
+    @extend_schema(responses={200: FriendRequestSerializer(many=True)})
     def get(self, request):
         user = request.user
         requests = FriendRequest.objects.filter(
@@ -24,7 +26,9 @@ class FriendRequestListView(APIView):
         
 class SendFriendRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FriendRequestSerializer
 
+    @extend_schema(request=FriendRequestSerializer, responses={200: None})
     def post(self, request):
         serialized = FriendRequestSerializer(data=request.data, context={'request': request})
         if serialized.is_valid():
@@ -34,7 +38,9 @@ class SendFriendRequestView(APIView):
 
 class AcceptFriendRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FriendRequestSerializer
 
+    @extend_schema(request=None, responses={200: None})
     def post(self, request, pk):
         try:
             friend_request = FriendRequest.objects.get(
@@ -59,7 +65,9 @@ class AcceptFriendRequestView(APIView):
 
 class DenyFriendRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FriendRequestSerializer
 
+    @extend_schema(request=None, responses={200: None})
     def post(self, request, pk):
         try:
             friend_request = FriendRequest.objects.get(
@@ -84,7 +92,9 @@ class DenyFriendRequestView(APIView):
 
 class UnfriendView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FriendRequestSerializer
 
+    @extend_schema(request=None, responses={200: None})
     def post(self, request, user_id):
         try:
             removee = User.objects.get(id=user_id)

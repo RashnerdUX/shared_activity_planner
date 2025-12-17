@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.conf import settings
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from api.models import Group, GroupMember, CustomUser
 from api.serializers import GroupSerializer, GroupMemberSerializer
@@ -13,7 +14,15 @@ from api.permissions import CanManageGroupMembers
 
 class GroupListView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
 
+    @extend_schema(
+        operation_id='list_groups',
+        parameters=[
+            OpenApiParameter(name='my_groups', description='Filter to show only groups where user is a member', required=False, type=bool)
+        ],
+        responses={200: GroupSerializer(many=True)}
+    )
     def get(self, request):
         """
         List all groups or filter by user membership if 'my_groups' query param is provided.
@@ -27,6 +36,7 @@ class GroupListView(APIView):
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=GroupSerializer, responses={201: GroupSerializer})
     def post(self, request):
         """
         Create a new group with the authenticated user as the creator.
@@ -39,10 +49,12 @@ class GroupListView(APIView):
 
 class GroupDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = GroupSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Group, pk=pk)
 
+    @extend_schema(operation_id='get_group', responses={200: GroupSerializer})
     def get(self, request, pk):
         """
         Retrieve details of a specific group.
@@ -51,6 +63,7 @@ class GroupDetailView(APIView):
         serializer = GroupSerializer(group)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=GroupSerializer, responses={200: GroupSerializer})
     def put(self, request, pk):
         """
         Update a group's details. Only the creator can update.
@@ -67,6 +80,7 @@ class GroupDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses={204: None})
     def delete(self, request, pk):
         """
         Delete a group. Only the creator can delete.
@@ -82,6 +96,7 @@ class GroupDetailView(APIView):
 
 class GroupMembersView(APIView):
     permission_classes = [IsAuthenticated, CanManageGroupMembers]
+    serializer_class = GroupMemberSerializer
 
     def get_object(self, pk):
         """
@@ -89,6 +104,7 @@ class GroupMembersView(APIView):
         """
         return get_object_or_404(Group, pk=pk)
 
+    @extend_schema(responses={200: GroupMemberSerializer(many=True)})
     def get(self, request, pk):
         """
         List all members of a specific group.
@@ -99,6 +115,7 @@ class GroupMembersView(APIView):
         serializer = GroupMemberSerializer(members, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=GroupMemberSerializer, responses={201: GroupMemberSerializer})
     def post(self, request, pk):
         """
         Add a new member to the group. Only the creator or admins can add members.
@@ -122,6 +139,7 @@ class GroupMembersView(APIView):
         except ValidationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses={204: None})
     def delete(self, request, pk):
         """
         Remove a member from the group. Only the creator or admins can remove members.
@@ -143,6 +161,7 @@ class GroupMembersView(APIView):
         except ValidationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(request=GroupMemberSerializer, responses={200: GroupMemberSerializer})
     def patch(self, request, pk):
         """
         Change a member's role in the group. Only the creator or admins can change roles.

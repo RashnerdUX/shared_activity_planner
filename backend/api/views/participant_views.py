@@ -4,16 +4,25 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 from api.models import Event, Participant, GroupMember, CustomUser
 from api.serializers import ParticipantSerializer
 from django.conf import settings
 
 class ParticipantView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ParticipantSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Event, pk=pk)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='rsvp_status', description='Filter participants by RSVP status', required=False, type=str)
+        ],
+        responses={200: ParticipantSerializer(many=True)}
+    )
     def get(self, request, pk):
         event = self.get_object(pk)
         #TODO: Might have to remove this check later to ensure users can be invited
@@ -41,6 +50,7 @@ class ParticipantView(APIView):
         serializer = ParticipantSerializer(participants, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=ParticipantSerializer, responses={201: ParticipantSerializer, 200: ParticipantSerializer})
     def post(self, request, pk):
         event = self.get_object(pk)
         data = {
@@ -61,6 +71,7 @@ class ParticipantView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED if not participant else status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(request=ParticipantSerializer, responses={200: ParticipantSerializer})
     def patch(self, request, pk):
         event = self.get_object(pk)
         participant = get_object_or_404(Participant, event=event, user=request.user)
@@ -75,6 +86,7 @@ class ParticipantView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses={204: None})
     def delete(self, request, pk):
         event = self.get_object(pk)
         participant = get_object_or_404(Participant, event=event, user=request.user)
@@ -83,10 +95,12 @@ class ParticipantView(APIView):
 
 class InvitationView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ParticipantSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Event, pk=pk)
 
+    @extend_schema(responses={201: ParticipantSerializer(many=True), 207: ParticipantSerializer(many=True)})
     def post(self, request, pk):
         """
         Invite group members to an event. Only group admins/creators can invite.

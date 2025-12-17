@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, response, status, views
+from drf_spectacular.utils import extend_schema
 
 from api.models import Notification, NotificationPreference
 from api.serializers import NotificationSerializer, NotificationPreferenceSerializer
@@ -19,7 +20,9 @@ class MarkNotificationAsReadView(views.APIView):
     This allows a user to mark a notification as read
     """
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = NotificationSerializer
 
+    @extend_schema(request=None, responses={200: None})
     def post(self, request, pk):
         try:
             notification = Notification.objects.get(id=pk, user=request.user)
@@ -35,7 +38,9 @@ class MarkAllNotificationsAsReadView(views.APIView):
     This allows a user to mark all his notifications as read
     """
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = NotificationSerializer
 
+    @extend_schema(request=None, responses={200: None})
     def post(self, request):
         try:
             updated_count = Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)

@@ -3,6 +3,7 @@ from django.http import Http404
 
 from rest_framework import response, status, permissions
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
 from ..serializers import (ProfileSerializer)
 from ..models import (UserProfile)
@@ -12,7 +13,9 @@ User = get_user_model()
 
 class ProfileListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProfileSerializer
 
+    @extend_schema(operation_id='list_profiles', responses={200: ProfileSerializer(many=True)})
     def get(self, request):
         try:
             profiles = UserProfile.objects.all()
@@ -25,6 +28,7 @@ class ProfileListView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
+    @extend_schema(request=ProfileSerializer, responses={201: None})
     def post(self, request):
         serialized = ProfileSerializer(data=request.data)
         user = request.user
@@ -37,6 +41,7 @@ class ProfileListView(APIView):
 
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProfileSerializer
 
     def get_object(self, pk):
         try:
@@ -45,6 +50,7 @@ class ProfileView(APIView):
         except:
             raise Http404
 
+    @extend_schema(operation_id='get_profile', responses={200: ProfileSerializer})
     def get(self,request, pk):
         try:
             user_profile = self.get_object(pk)
@@ -53,6 +59,7 @@ class ProfileView(APIView):
         except:
             return response.Response(data={"message":"User Profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
     
+    @extend_schema(request=ProfileSerializer, responses={200: None})
     def put(self, request, pk,):
         try:
             user_profile = self.get_object(pk)
@@ -65,6 +72,7 @@ class ProfileView(APIView):
         except:
             return response.Response(data={"message":"User Profile could not be found"}, status=status.HTTP_404_NOT_FOUND)
     
+    @extend_schema(request=ProfileSerializer, responses={200: None})
     def patch(self, request, pk):
         try:
             user_profile = self.get_object(pk)

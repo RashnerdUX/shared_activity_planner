@@ -3,6 +3,7 @@ from rest_framework import response, status, permissions
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Count, Max
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from api.models import TimeOption, TimeVote, Event, GroupMember, Participant
 from api.serializers import TimeOptionSerializer, TimeVoteSerializer
@@ -10,7 +11,15 @@ from api.permissions import CanCreateATimeOption, CanVoteOnEventAndModifyVote
 
 class TimeOptionListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TimeOptionSerializer
 
+    @extend_schema(
+        operation_id='list_time_options_by_event',
+        parameters=[
+            OpenApiParameter(name='event', description='Event ID to filter time options', required=True, type=int)
+        ],
+        responses={200: TimeOptionSerializer(many=True)}
+    )
     def get(self, request):
         """
         This retrieves all the time options for a view
@@ -25,6 +34,7 @@ class TimeOptionListView(APIView):
 
 
 class TimeOptionView(APIView):
+    serializer_class = TimeOptionSerializer
 
     def get_permissions(self):
         if self.request.method == "POST":
@@ -35,6 +45,7 @@ class TimeOptionView(APIView):
         time = get_object_or_404(TimeOption,pk=pk)
         return time
 
+    @extend_schema(operation_id='get_time_option', responses={200: TimeOptionSerializer})
     def get(self, request, pk):
         """
         A single Time option can be retrieved 
@@ -46,6 +57,7 @@ class TimeOptionView(APIView):
         except TimeOption.DoesNotExist:
                 return response.Response({"message":"Could not find time option"}, status.HTTP_404_NOT_FOUND)
     
+    @extend_schema(request=TimeOptionSerializer, responses={201: TimeOptionSerializer})
     def post(self, request, pk):
         """
         This will allow users to add a Timeoption to an event. It will only be accessible to the creator of an event and/or the admins of the group it is associated with. So pk expected here is the event's id
@@ -69,6 +81,7 @@ class TimeOptionView(APIView):
         except Exception as e:
             return response.Response({"message":f"The event does not exist", "error":f"{e}"}, status.HTTP_400_BAD_REQUEST)
             
+    @extend_schema(request=TimeOptionSerializer, responses={200: TimeOptionSerializer})
     def patch(self, request, pk):
         """
         No need for a put request. A previous time option's datetime is the only thing that can be edited and whether or not it is the final choice
@@ -83,6 +96,7 @@ class TimeOptionView(APIView):
         except TimeOption.DoesNotExist:
             return response.Response({"message":"Unable to update the time option"}, status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses={200: None})
     def delete(self, request, pk):
         time = self.get_object(pk)
         user = request.user
@@ -104,7 +118,9 @@ class TimeVotingView(APIView):
     This is where voting will take place. The client will pass in their time option and then the system will register that as a vote. Voting can be carried out by anyone attending an event irrespective of their role
     """
     permission_classes = [permissions.IsAuthenticated, CanVoteOnEventAndModifyVote]
+    serializer_class = TimeVoteSerializer
 
+    @extend_schema(operation_id='cast_time_vote', request=TimeVoteSerializer, responses={200: None})
     def post(self, request, pk):
         event = Event.objects.get(pk=pk)
         data = request.data
@@ -115,7 +131,8 @@ class TimeVotingView(APIView):
             return response.Response({"message":f"Your vote has been casted for {event.title} to hold on {time_date}"}, status.HTTP_200_OK)
         return response.Response({"message":f"Your vote could not be casted for the event"}, status.HTTP_400_BAD_REQUEST)
         
-        
+    
+    @extend_schema(operation_id='update_time_vote', request=TimeVoteSerializer, responses={200: None})
     def patch(self, request, pk):
         """
         This is updating the voting for a specific user for a certain event so I am receiving the vote id
@@ -134,7 +151,9 @@ class TimeVotingView(APIView):
     
 class GetTimeVotesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TimeOptionSerializer
 
+    @extend_schema(responses={200: TimeOptionSerializer(many=True)})
     def get(self, request, pk):
         """
         This view's sole function is to return an annotated data of all time options associated with an event and their vote count. So, id passed is for the event
@@ -153,7 +172,9 @@ class GetTimeVotesView(APIView):
     
 class ScheduleEventView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TimeOptionSerializer
 
+    @extend_schema(responses={200: None})
     def post(self, request, pk):
         """
         This is for setting the final time for the event and it will be called when the time for voting ends or if a group doesn't bother voting for the final time of an event. Thus, the event id is required

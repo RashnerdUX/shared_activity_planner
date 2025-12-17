@@ -1,5 +1,6 @@
 from rest_framework import views, permissions, response, status, generics, serializers
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from api.models import Task, TaskCategory, Event, GroupMember, CustomUser
 from api.serializers import TaskSerializer, TaskCategorySerializer
@@ -7,7 +8,15 @@ from api.permissions import IsAdminOrStaffForDefaultCategory, CanChangeTaskStatu
 
 class TaskListView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, CanCreateTaskForEvent]
+    serializer_class = TaskSerializer
 
+    @extend_schema(
+        operation_id='list_tasks_by_event',
+        parameters=[
+            OpenApiParameter(name='event', description='Event ID to filter tasks', required=True, type=int)
+        ],
+        responses={200: TaskSerializer(many=True)}
+    )
     def get(self, request):
         event = request.query_params.get("event")
 
@@ -24,6 +33,7 @@ class TaskListView(views.APIView):
         else:
             return response.Response({"message":f"There was no event passed in the query so a list could not be generated"}, status.HTTP_404_NOT_FOUND)
 
+    @extend_schema(request=TaskSerializer, responses={201: TaskSerializer})
     def post(self, request):
         """
         This will allow users to add a Task to an event. 
@@ -54,11 +64,13 @@ class TaskListView(views.APIView):
 class TaskView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated, CanAccessOrModifyTask]
+    serializer_class = TaskSerializer
 
     def get_object(self,pk):
         task = get_object_or_404(Task.objects.select_related('event', 'category', 'assigned_to'),pk=pk)
         return task
 
+    @extend_schema(operation_id='get_task', responses={200: TaskSerializer})
     def get(self, request, pk):
         """
         This is used to retrieve a single task. So it receives the task id
@@ -68,6 +80,7 @@ class TaskView(views.APIView):
         serialized = TaskSerializer(instance=task)
         return response.Response(serialized.data, status=status.HTTP_200_OK)
         
+    @extend_schema(request=TaskSerializer, responses={200: TaskSerializer})
     def patch(self, request, pk):
         """
         This is used to edit the task title, assigned, etc
@@ -80,6 +93,7 @@ class TaskView(views.APIView):
             return response.Response(serialized.data, status.HTTP_200_OK)
         return response.Response(serialized.errors, status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses={200: None})
     def delete(self, request, pk):
         task = self.get_object(pk)
         self.check_object_permissions(request, task)
@@ -110,12 +124,14 @@ class TaskCategoryView(generics.RetrieveUpdateDestroyAPIView):
 class TaskAssignmentView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated, CanAssignTask]
+    serializer_class = TaskSerializer
 
     def get_object(self, pk):
         return get_object_or_404(
             Task.objects.select_related('event', 'category', 'assigned_to'), pk=pk
         )
 
+    @extend_schema(request=TaskSerializer, responses={200: TaskSerializer})
     def patch(self, request,pk):
         """
         This method allows us to assign the user for a task. It will simply assign a valid user to the object. Only the event creators or group admins can do this.
@@ -138,12 +154,14 @@ class TaskAssignmentView(views.APIView):
 class ChangeTaskStatusView(views.APIView):
 
     permission_classes = [permissions.IsAuthenticated, CanChangeTaskStatus]
+    serializer_class = TaskSerializer
 
     def get_object(self, pk):
         return get_object_or_404(
             Task.objects.select_related('event', 'category', 'assigned_to'), pk=pk
         )
 
+    @extend_schema(request=TaskSerializer, responses={200: TaskSerializer})
     def patch(self, request,pk):
         """
         This method allows us to change the status of the task for a user. The user,in this case, is the assignee or the assigned. 

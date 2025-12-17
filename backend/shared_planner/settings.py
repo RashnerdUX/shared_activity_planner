@@ -195,5 +195,9 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'This is the backend for a web app that enables collaborative planning of events among a group of people',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'ENUM_NAME_OVERRIDES': {
+        'TaskStatus': 'TaskStatusEnum',
+        'NotificationTypeEnum': 'api.models.notification_model.Notification.notification_type.field.choices',
+    },
     # OTHER SETTINGS
 }
